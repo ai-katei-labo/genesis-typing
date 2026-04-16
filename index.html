@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GENESIS タイピング練習</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Noto+Sans+JP:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
+
+  :root {
+    --bg: #0d0a07;
+    --surface: #1a1410;
+    --card: #211a12;
+    --gold: #c9a84c;
+    --gold2: #e8cc7a;
+    --cream: #f5ead8;
+    --muted: #8a7a60;
+    --border: #3a2e1e;
+    --accent-green: #4a8c5c;
+    --accent-red: #8c3a3a;
+    --text: #f0e6d0;
+    --shadow: 0 8px 32px rgba(0,0,0,0.6);
+  }
+
+  * { box-sizing:border-box; margin:0; padding:0; }
+
+  body {
+    background: var(--bg);
+    background-image: 
+      radial-gradient(ellipse at 20% 20%, rgba(201,168,76,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(74,140,92,0.04) 0%, transparent 50%);
+    color: var(--text);
+    font-family: 'EB Garamond', serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px 40px;
+  }
+
+  /* ── TITLE ── */
+  .app-title-area {
+    width: 100%; max-width: 640px;
+    text-align: center;
+    padding: 32px 0 28px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 28px;
+    position: relative;
+  }
+  .app-title-area::after {
+    content: '✦';
+    position: absolute;
+    bottom: -10px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg);
+    padding: 0 12px;
+    color: var(--gold);
+    font-size: 14px;
+  }
+  .app-title {
+    font-family: 'Cinzel', serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: 6px;
+    text-shadow: 0 0 30px rgba(201,168,76,0.4);
+    margin-bottom: 6px;
+  }
+  .app-subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+
+  /* ── SET SCREEN ── */
+  #set-screen { width: 100%; max-width: 640px; }
+  .set-section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 3px;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+  .set-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .set-btn {
+    padding: 16px 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--cream);
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s;
+    text-align: left;
+    line-height: 1.5;
+  }
+  .set-btn:hover { border-color: var(--gold); background: #2a2015; transform: translateY(-2px); box-shadow: 0 4px 16px rgba(201,168,76,0.15); }
+  .set-btn.selected { border-color: var(--gold); background: #2a2015; box-shadow: 0 0 0 1px var(--gold); }
+  .set-btn .day-label { color: var(--gold); font-size: 11px; letter-spacing: 2px; margin-bottom: 4px; display: block; }
+  .set-btn .verse-count { color: var(--muted); font-size: 11px; font-family: 'Noto Sans JP', sans-serif; font-weight: 400; margin-top: 4px; display: block; }
+  .all-btn {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, #2a2015, #1e1810);
+    border: 1px solid var(--gold);
+    border-radius: 12px;
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+  .all-btn:hover { background: #2a2015; box-shadow: 0 4px 16px rgba(201,168,76,0.2); }
+  .start-btn {
+    width: 100%; padding: 18px;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    border: none;
+    border-radius: 14px;
+    color: #1a1008;
+    font-family: 'Cinzel', serif;
+    font-size: 15px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 3px;
+    box-shadow: 0 4px 20px rgba(201,168,76,0.3);
+  }
+  .start-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(201,168,76,0.4); }
+  .start-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+  /* ── PROGRESS ── */
+  .progress-area { width: 100%; max-width: 640px; margin-bottom: 20px; }
+  .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .progress-label { font-family: 'Cinzel', serif; font-size: 12px; color: var(--gold); letter-spacing: 2px; }
+  .progress-count { font-size: 12px; color: var(--muted); font-family: 'Noto Sans JP', sans-serif; }
+  .progress-bar { height: 3px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold2)); border-radius: 99px; transition: width 0.5s; }
+
+  /* ── CARD ── */
+  .card {
+    width: 100%; max-width: 640px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 24px;
+    position: relative;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold), var(--gold2), var(--gold), transparent);
+  }
+
+  .verse-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px;
+  }
+  .verse-day { font-family: 'Cinzel', serif; font-size: 11px; color: var(--gold); letter-spacing: 3px; }
+  .verse-num { font-size: 11px; color: var(--muted); font-family: 'Noto Sans JP', sans-serif; }
+
+  /* 聖書テキスト表示 */
+  .verse-display {
+    background: #160f08;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-bottom: 20px;
+    font-family: 'EB Garamond', serif;
+    font-size: 18px;
+    line-height: 1.9;
+    color: var(--cream);
+    letter-spacing: 0.3px;
+    min-height: 80px;
+    position: relative;
+  }
+  .verse-display .verse-number {
+    color: var(--gold);
+    font-weight: 600;
+    margin-right: 4px;
+  }
+
+  /* 音声ボタン */
+  .listen-btn {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #1e2818, #162010);
+    border: 2px solid var(--accent-green);
+    border-radius: 16px;
+    color: #7dc896;
+    font-size: 28px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    margin-bottom: 20px;
+  }
+  .listen-btn .listen-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; font-family: 'Cinzel', serif; color: #7dc896; }
+  .listen-btn:hover { transform: scale(1.01); box-shadow: 0 4px 16px rgba(74,140,92,0.3); }
+  .listen-btn.playing { animation: pulse-green 0.8s ease-in-out infinite alternate; }
+  @keyframes pulse-green {
+    from { border-color: var(--accent-green); box-shadow: 0 0 8px rgba(74,140,92,0.3); }
+    to { border-color: #7dc896; box-shadow: 0 0 20px rgba(74,140,92,0.5); }
+  }
+
+  /* タイピングエリア */
+  .typing-area { margin-bottom: 16px; }
+  .typing-label { font-size: 12px; color: var(--muted); margin-bottom: 10px; font-family: 'Noto Sans JP', sans-serif; letter-spacing: 1px; }
+
+  /* カラー表示エリア */
+  .typed-display {
+    width: 100%;
+    min-height: 80px;
+    background: #120d08;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    font-family: 'EB Garamond', serif;
+    font-size: 20px;
+    line-height: 1.8;
+    letter-spacing: 0.3px;
+    position: relative;
+    margin-bottom: 12px;
+    word-break: break-all;
+  }
+  .typed-display .char-correct { color: var(--accent-green); }
+  .typed-display .char-wrong { color: var(--accent-red); text-decoration: underline; }
+  .typed-display .char-pending { color: #3a3020; }
+  .typed-display .cursor {
+    display: inline-block; width: 2px; height: 1.2em;
+    background: var(--gold); vertical-align: text-bottom;
+    animation: blink 1s ease-in-out infinite;
+    margin-left: 1px;
+  }
+  @keyframes blink { 0%,50%{opacity:1;} 51%,100%{opacity:0;} }
+
+  .typing-input {
+    width: 100%;
+    padding: 14px 18px;
+    background: #160f08;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    color: var(--cream);
+    font-family: 'EB Garamond', serif;
+    font-size: 18px;
+    outline: none;
+    transition: border-color 0.2s;
+    caret-color: var(--gold);
+  }
+  .typing-input:focus { border-color: var(--gold); }
+  .typing-input.complete { border-color: var(--accent-green); background: #0e1a10; }
+
+  /* フィードバック */
+  .feedback {
+    display: none; padding: 12px 16px; border-radius: 12px;
+    font-size: 14px; margin-bottom: 14px;
+    font-family: 'Noto Sans JP', sans-serif; font-weight: 700;
+    align-items: center; gap: 10px;
+  }
+  .feedback.show { display: flex; animation: fadeIn 0.3s ease; }
+  .feedback.ok { background: rgba(74,140,92,0.15); border: 1px solid var(--accent-green); color: #7dc896; }
+  .feedback.ng { background: rgba(140,58,58,0.15); border: 1px solid var(--accent-red); color: #dc8a8a; }
+  .feedback-icon { font-size: 18px; }
+
+  /* ミス表示 */
+  .miss-count { text-align: right; font-size: 12px; color: var(--muted); margin-bottom: 10px; font-family: 'Noto Sans JP', sans-serif; }
+  .miss-count span { color: #dc8a8a; font-weight: 700; }
+
+  /* ボタン */
+  .btn-row { display: flex; gap: 10px; }
+  .btn {
+    flex: 1; padding: 14px; border-radius: 12px; border: none;
+    font-family: 'Noto Sans JP', sans-serif; font-size: 14px;
+    cursor: pointer; transition: all 0.2s; font-weight: 700;
+  }
+  .btn-next {
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    color: #1a1008; box-shadow: 0 4px 14px rgba(201,168,76,0.25);
+  }
+  .btn-next:hover { transform: translateY(-2px); }
+  .btn-next:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+  .btn-skip { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+  .btn-skip:hover { color: var(--text); border-color: var(--muted); }
+  .btn-replay { background: rgba(74,140,92,0.15); color: #7dc896; border: 1px solid var(--accent-green); font-size: 13px; }
+
+  /* ── RESULT ── */
+  #result-screen { display: none; width: 100%; max-width: 640px; text-align: center; }
+  .result-emblem {
+    font-family: 'Cinzel', serif;
+    font-size: 64px; font-weight: 900;
+    color: var(--gold);
+    text-shadow: 0 0 40px rgba(201,168,76,0.5);
+    margin-bottom: 8px;
+  }
+  .result-label { font-size: 14px; color: var(--muted); margin-bottom: 8px; letter-spacing: 2px; font-family: 'Cinzel', serif; }
+  .result-sub { font-size: 13px; color: var(--muted); margin-bottom: 32px; font-family: 'Noto Sans JP', sans-serif; }
+  .missed-box {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px; margin-bottom: 24px; text-align: left;
+  }
+  .missed-box-title { font-family: 'Cinzel', serif; font-size: 11px; color: var(--gold); letter-spacing: 3px; margin-bottom: 14px; }
+  .missed-verse {
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+    font-size: 14px; color: var(--cream); line-height: 1.7;
+    font-family: 'EB Garamond', serif;
+  }
+  .missed-verse:last-child { border-bottom: none; }
+  .missed-verse .miss-num { color: var(--accent-red); font-size: 11px; font-family: 'Noto Sans JP', sans-serif; font-weight: 700; margin-top: 4px; display: block; }
+  .result-btn-row { display: flex; gap: 10px; }
+  .result-btn {
+    flex: 1; padding: 14px; border-radius: 12px; border: none;
+    font-family: 'Noto Sans JP', sans-serif; font-size: 14px;
+    cursor: pointer; font-weight: 700; transition: all 0.2s;
+  }
+  .result-btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold2)); color: #1a1008; }
+  .result-btn-primary:hover { transform: translateY(-2px); }
+  .result-btn-secondary { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+
+  .fade-in { animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
+
+  /* トースト */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--gold); color: #1a1008; padding: 11px 22px; border-radius: 99px; font-size: 13px; font-weight: 700; transition: transform 0.3s; z-index: 999; white-space: nowrap; font-family: 'Noto Sans JP', sans-serif; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="app-title-area">
+  <div class="app-title">GENESIS</div>
+  <div class="app-subtitle">英文タイピング練習 — 創世記</div>
+</div>
+
+<!-- ════════════════════════════════
+     SET SELECT
+════════════════════════════════ -->
+<div id="set-screen" class="fade-in">
+  <div class="set-section-title">— セクションを選ぶ —</div>
+  <div class="set-grid" id="set-grid"></div>
+  <button class="all-btn" onclick="startAll()">✦ すべての節を練習する</button>
+  <button class="start-btn" id="start-btn" onclick="startSelected()" disabled>BEGIN →</button>
+</div>
+
+<!-- ════════════════════════════════
+     QUIZ SCREEN
+════════════════════════════════ -->
+<div id="quiz-screen" style="display:none;width:100%;max-width:640px;">
+  <div class="progress-area">
+    <div class="progress-header">
+      <span class="progress-label" id="progress-day">ONE DAY</span>
+      <span class="progress-count" id="progress-count">1 / 1</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="card fade-in" id="quiz-card">
+    <div class="verse-meta">
+      <span class="verse-day" id="verse-day-label"></span>
+      <span class="verse-num" id="verse-num-label"></span>
+    </div>
+
+    <!-- 聖書テキスト表示 -->
+    <div class="verse-display" id="verse-display"></div>
+
+    <!-- 音声ボタン -->
+    <button class="listen-btn" id="listen-btn" onclick="playVerse()">
+      <span>🔊</span>
+      <span class="listen-label">TAP TO LISTEN</span>
+    </button>
+
+    <!-- タイピングエリア -->
+    <div class="typing-area">
+      <div class="typing-label">👆 上の文章を聞いて、タイピングしよう</div>
+      <div class="typed-display" id="typed-display"></div>
+      <div class="miss-count">ミス: <span id="miss-count">0</span> 回</div>
+      <input
+        class="typing-input"
+        id="typing-input"
+        type="text"
+        placeholder="ここに入力…"
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+        oninput="handleTyping()"
+        onkeydown="handleKeydown(event)"
+      >
+    </div>
+
+    <div class="feedback" id="feedback">
+      <span class="feedback-icon"></span>
+      <span class="feedback-text"></span>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-skip" onclick="skipVerse()">スキップ</button>
+      <button class="btn btn-replay" onclick="playVerse()">🔊 もう一度</button>
+      <button class="btn btn-next" id="btn-next" onclick="nextVerse()" disabled>次へ →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     RESULT
+════════════════════════════════ -->
+<div id="result-screen">
+  <div style="margin:32px 0 16px;">
+    <div class="result-emblem" id="result-score">0/0</div>
+    <div class="result-label">VERSES COMPLETED</div>
+    <div class="result-sub" id="result-sub"></div>
+  </div>
+  <div class="missed-box" id="missed-box" style="display:none">
+    <div class="missed-box-title">— MISSED VERSES —</div>
+    <div id="missed-items"></div>
+  </div>
+  <div class="result-btn-row">
+    <button class="result-btn result-btn-secondary" onclick="backToMenu()">メニューへ</button>
+    <button class="result-btn result-btn-primary" onclick="retryMissed()" id="retry-btn">もう一度</button>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════
+// GENESIS DATA
+// ════════════════════════════════
+const GENESIS_DATA = [
+  {
+    day: "ONE DAY", dayShort: "Day 1",
+    verses: [
+      { num: "①", text: "In the beginning God created the heavens and the earth." },
+      { num: "②", text: "The earth was without form and void, and darkness was upon the face of the deep; and the Spirit of God was moving over the face of the waters." },
+      { num: "③", text: 'And God said, "Let there be light"; and there was light.' },
+      { num: "④", text: "And God saw that the light was good; and God separated the light from the darkness." },
+      { num: "⑤", text: "God called the light Day, and the darkness he called Night. And there was evening and there was morning, a first day." }
+    ]
+  },
+  {
+    day: "SECOND DAY", dayShort: "Day 2",
+    verses: [
+      { num: "①", text: 'And God said, "Let there be a firmament in the midst of the waters, and let it separate the waters from the waters."' },
+      { num: "②", text: "And God made the firmament and separated the waters which were under the firmament from the waters which were above the firmament. And it was so." },
+      { num: "③", text: "And God called the firmament Heaven. And there was evening and there was morning, a second day." }
+    ]
+  },
+  {
+    day: "THIRD DAY", dayShort: "Day 3",
+    verses: [
+      { num: "①", text: 'And God said, "Let the waters under the heavens be gathered together into one place, and let the dry land appear." And it was so.' },
+      { num: "②", text: "God called the dry land Earth, and the waters that were gathered together he called Seas. And God saw that it was good." },
+      { num: "③", text: 'And God said, "Let the earth put forth vegetation, plants yielding seed, and fruit trees bearing fruit in which is their seed, each according to its kind, upon the earth." And it was so.' },
+      { num: "④", text: "The earth brought forth vegetation, plants yielding seed according to their own kinds, and trees bearing fruit in which is their seed, each according to its kind. And God saw that it was good." },
+      { num: "⑤", text: "And there was evening and there was morning, a third day." }
+    ]
+  },
+  {
+    day: "FOURTH DAY", dayShort: "Day 4",
+    verses: [
+      { num: "①", text: 'And God said, "Let there be lights in the firmament of the heavens to separate the day from the night; and let them be for signs and for seasons and for days and years,"' },
+      { num: "②", text: 'and let them be lights in the firmament of the heavens to give light upon the earth." And it was so.' },
+      { num: "③", text: "And God made the two great lights, the greater light to rule the day, and the lesser light to rule the night; he made the stars also." },
+      { num: "④", text: "And God set them in the firmament of the heavens to give light upon the earth," },
+      { num: "⑤", text: "to rule over the day and over the night, and to separate the light from the darkness. And God saw that it was good." },
+      { num: "⑥", text: "And there was evening and there was morning, a fourth day." }
+    ]
+  },
+  {
+    day: "FIFTH DAY", dayShort: "Day 5",
+    verses: [
+      { num: "①", text: 'And God said, "Let the waters bring forth swarms of living creatures, and let birds fly above the earth across the firmament of the heavens."' },
+      { num: "②", text: "So God created the great sea monsters and every living creature that moves, with which the waters swarm, according to their kinds, and every winged bird according to its kind. And God saw that it was good." },
+      { num: "③", text: 'And God blessed them, saying, "Be fruitful and multiply and fill the waters in the seas, and let birds multiply on the earth."' },
+      { num: "④", text: "And there was evening and there was morning, a fifth day." }
+    ]
+  },
+  {
+    day: "SIXTH DAY", dayShort: "Day 6",
+    verses: [
+      { num: "①", text: 'And God said, "Let the earth bring forth living creatures according to their kinds: cattle and creeping things and beasts of the earth according to their kinds." And it was so.' },
+      { num: "②", text: "And God made the beasts of the earth according to their kinds and the cattle according to their kinds, and everything that creeps upon the ground according to its kind. And God saw that it was good." },
+      { num: "③", text: 'Then God 
