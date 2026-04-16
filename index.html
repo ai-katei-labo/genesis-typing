@@ -487,4 +487,315 @@ const GENESIS_DATA = [
     verses: [
       { num: "①", text: 'And God said, "Let the earth bring forth living creatures according to their kinds: cattle and creeping things and beasts of the earth according to their kinds." And it was so.' },
       { num: "②", text: "And God made the beasts of the earth according to their kinds and the cattle according to their kinds, and everything that creeps upon the ground according to its kind. And God saw that it was good." },
-      { num: "③", text: 'Then God 
+      { num: "③", text: 'Then God said, "Let us make man in our image, after our likeness; and let them have dominion over the fish of the sea, and over the birds of the air, and over the cattle, and over all the earth, and over every creeping thing that creeps upon the earth."' },
+      { num: "④", text: "So God created man in his own image, in the image of God he created him; male and female he created them," },
+      { num: "⑤", text: 'And God blessed them, and God said to them, "Be fruitful and multiply, and fill the earth and subdue it; and have dominion over the fish of the sea and over the birds of the air and over every living thing that moves upon the earth."' },
+      { num: "⑥", text: 'And God said, "Behold, I have given you every plant yielding seed which is upon the face of all the earth, and every tree with seed in its fruit; you shall have them for food.' },
+      { num: "⑦", text: 'And to every beast of the earth, and to every bird of the air, and to everything that creeps on the earth, everything that has the breath of life, I have given every green plant for food." And it was so.' },
+      { num: "⑧", text: "And God saw everything that he had made, and behold, it was very good. And there was evening and there was morning, a sixth day." }
+    ]
+  },
+  {
+    day: "SEVENTH DAY", dayShort: "Day 7",
+    verses: [
+      { num: "①", text: "Thus the heavens and the earth were finished, and all the host of them." },
+      { num: "②", text: "And on the seventh day God finished his work which he had done, and he rested on the seventh day from all his work which he had done." },
+      { num: "③", text: "So God blessed the seventh day and hallowed it, because on it God rested from all his work which he had done in creation." }
+    ]
+  }
+];
+
+// ── State ──
+let queue = [], current = 0;
+let missedVerses = [], correctCount = 0, totalCount = 0;
+let selectedSets = new Set();
+let currentMiss = 0;
+let typingStarted = false;
+let isComplete = false;
+
+// ════════════════════════════════
+// SET GRID
+// ════════════════════════════════
+function buildSetGrid() {
+  const grid = document.getElementById('set-grid');
+  grid.innerHTML = '';
+  GENESIS_DATA.forEach((section, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'set-btn';
+    btn.id = `set-${i}`;
+    if (selectedSets.has(i)) btn.classList.add('selected');
+    btn.innerHTML = `<span class="day-label">${section.day}</span>${section.dayShort}<span class="verse-count">${section.verses.length} 節</span>`;
+    btn.onclick = () => toggleSet(i, btn);
+    grid.appendChild(btn);
+  });
+}
+
+function toggleSet(i, btn) {
+  if (selectedSets.has(i)) { selectedSets.delete(i); btn.classList.remove('selected'); }
+  else { selectedSets.add(i); btn.classList.add('selected'); }
+  document.getElementById('start-btn').disabled = selectedSets.size === 0;
+}
+
+function startSelected() {
+  queue = [];
+  selectedSets.forEach(i => {
+    GENESIS_DATA[i].verses.forEach(v => queue.push({ ...v, day: GENESIS_DATA[i].day, miss: 0 }));
+  });
+  startQuiz();
+}
+
+function startAll() {
+  queue = [];
+  GENESIS_DATA.forEach(s => s.verses.forEach(v => queue.push({ ...v, day: s.day, miss: 0 })));
+  startQuiz();
+}
+
+function startQuiz() {
+  current = 0; missedVerses = []; correctCount = 0; totalCount = 0;
+  document.getElementById('set-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+  loadVerse();
+}
+
+// ════════════════════════════════
+// LOAD VERSE
+// ════════════════════════════════
+function loadVerse() {
+  const verse = queue[current];
+  currentMiss = 0; typingStarted = false; isComplete = false;
+
+  // ヘッダー
+  document.getElementById('progress-day').textContent = verse.day;
+  document.getElementById('progress-count').textContent = `${current + 1} / ${queue.length}`;
+  document.getElementById('progress-fill').style.width = `${(current / queue.length) * 100}%`;
+
+  // カード
+  document.getElementById('verse-day-label').textContent = verse.day;
+  document.getElementById('verse-num-label').textContent = `節 ${verse.num}`;
+
+  // テキスト表示
+  document.getElementById('verse-display').innerHTML = `<span class="verse-number">${verse.num}</span>${verse.text}`;
+
+  // 音声ボタンリセット
+  const listenBtn = document.getElementById('listen-btn');
+  listenBtn.classList.remove('playing');
+  listenBtn.querySelector('.listen-label').textContent = 'TAP TO LISTEN';
+
+  // タイピングリセット
+  document.getElementById('typing-input').value = '';
+  document.getElementById('typing-input').className = 'typing-input';
+  document.getElementById('miss-count').textContent = '0';
+  document.getElementById('btn-next').disabled = true;
+  document.getElementById('feedback').className = 'feedback';
+  updateTypedDisplay('');
+
+  // アニメーション
+  const card = document.getElementById('quiz-card');
+  card.classList.remove('fade-in'); void card.offsetWidth; card.classList.add('fade-in');
+
+  setTimeout(() => document.getElementById('typing-input').focus(), 300);
+}
+
+// ════════════════════════════════
+// TTS
+// ════════════════════════════════
+function playVerse() {
+  const verse = queue[current];
+  speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(verse.text);
+  utter.lang = 'en-US';
+  utter.rate = 0.82;
+  utter.pitch = 1.0;
+
+  const btn = document.getElementById('listen-btn');
+  btn.classList.add('playing');
+  btn.querySelector('.listen-label').textContent = 'PLAYING...';
+
+  utter.onend = () => {
+    btn.classList.remove('playing');
+    btn.querySelector('.listen-label').textContent = 'TAP TO LISTEN';
+  };
+  speechSynthesis.speak(utter);
+}
+
+// ════════════════════════════════
+// TYPING
+// ════════════════════════════════
+function handleTyping() {
+  if (isComplete) return;
+  const verse = queue[current];
+  const input = document.getElementById('typing-input');
+  const typed = input.value;
+  const target = verse.text;
+
+  updateTypedDisplay(typed);
+
+  // ミスカウント（新しいミスのみ）
+  if (typed.length > 0 && typed.length <= target.length) {
+    const lastChar = typed[typed.length - 1];
+    const targetChar = target[typed.length - 1];
+    if (lastChar !== targetChar && typingStarted) {
+      currentMiss++;
+      document.getElementById('miss-count').textContent = currentMiss;
+    }
+  }
+  typingStarted = true;
+
+  // 完了チェック
+  if (typed === target) {
+    completeVerse(true);
+  }
+}
+
+function handleKeydown(e) {
+  if (e.key === 'Enter' && isComplete) {
+    nextVerse();
+  }
+}
+
+function updateTypedDisplay(typed) {
+  const target = queue[current].text;
+  let html = '';
+
+  for (let i = 0; i < target.length; i++) {
+    if (i < typed.length) {
+      if (typed[i] === target[i]) {
+        html += `<span class="char-correct">${escHtml(target[i])}</span>`;
+      } else {
+        html += `<span class="char-wrong">${escHtml(target[i])}</span>`;
+      }
+    } else if (i === typed.length) {
+      html += `<span class="cursor"></span><span class="char-pending">${escHtml(target[i])}</span>`;
+    } else {
+      html += `<span class="char-pending">${escHtml(target[i])}</span>`;
+    }
+  }
+  if (typed.length >= target.length) html += '<span class="cursor"></span>';
+
+  document.getElementById('typed-display').innerHTML = html;
+}
+
+function escHtml(c) {
+  if (c === '<') return '&lt;';
+  if (c === '>') return '&gt;';
+  if (c === '&') return '&amp;';
+  if (c === '"') return '&quot;';
+  if (c === ' ') return '&nbsp;';
+  return c;
+}
+
+function completeVerse(isCorrect) {
+  isComplete = true;
+  totalCount++;
+  const verse = queue[current];
+  verse.miss = currentMiss;
+
+  const fb = document.getElementById('feedback');
+  const input = document.getElementById('typing-input');
+
+  if (currentMiss === 0) {
+    correctCount++;
+    fb.className = 'feedback show ok';
+    fb.querySelector('.feedback-icon').textContent = '✦';
+    fb.querySelector('.feedback-text').textContent = 'Perfect! ミスなし完璧！';
+    input.className = 'typing-input complete';
+  } else if (currentMiss <= 3) {
+    correctCount++;
+    fb.className = 'feedback show ok';
+    fb.querySelector('.feedback-icon').textContent = '✓';
+    fb.querySelector('.feedback-text').textContent = `完了！ミス ${currentMiss} 回`;
+    input.className = 'typing-input complete';
+  } else {
+    missedVerses.push(verse);
+    fb.className = 'feedback show ng';
+    fb.querySelector('.feedback-icon').textContent = '✗';
+    fb.querySelector('.feedback-text').textContent = `完了。ミス ${currentMiss} 回 — 要復習`;
+  }
+
+  document.getElementById('btn-next').disabled = false;
+  speechSynthesis.cancel();
+}
+
+function skipVerse() {
+  totalCount++;
+  const verse = queue[current];
+  verse.miss = 99;
+  missedVerses.push(verse);
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback show ng';
+  fb.querySelector('.feedback-icon').textContent = '→';
+  fb.querySelector('.feedback-text').textContent = 'スキップ — 次回チャレンジしよう';
+
+  isComplete = true;
+  document.getElementById('btn-next').disabled = false;
+}
+
+function nextVerse() {
+  current++;
+  if (current >= queue.length) showResult();
+  else loadVerse();
+}
+
+// ════════════════════════════════
+// RESULT
+// ════════════════════════════════
+function showResult() {
+  document.getElementById('quiz-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'block';
+  document.getElementById('result-screen').classList.add('fade-in');
+
+  document.getElementById('result-score').textContent = `${correctCount}/${totalCount}`;
+  const pct = totalCount > 0 ? Math.round(correctCount / totalCount * 100) : 0;
+  document.getElementById('result-sub').textContent = `正答率 ${pct}%`;
+
+  const seen = new Set();
+  const unique = missedVerses.filter(v => {
+    const key = v.day + v.num;
+    if (seen.has(key)) return false;
+    seen.add(key); return true;
+  });
+
+  if (unique.length > 0) {
+    document.getElementById('missed-box').style.display = 'block';
+    document.getElementById('missed-items').innerHTML = unique.map(v =>
+      `<div class="missed-verse">
+        <span class="verse-number" style="color:var(--gold)">${v.num}</span> ${v.text}
+        <span class="miss-num">${v.miss === 99 ? 'スキップ' : `ミス ${v.miss} 回`}</span>
+      </div>`
+    ).join('');
+    document.getElementById('retry-btn').disabled = false;
+  } else {
+    document.getElementById('missed-box').style.display = 'none';
+    document.getElementById('retry-btn').disabled = true;
+  }
+}
+
+function retryMissed() {
+  const seen = new Set();
+  queue = missedVerses.filter(v => {
+    const key = v.day + v.num;
+    if (seen.has(key)) return false;
+    seen.add(key); return true;
+  });
+  current = 0; missedVerses = []; correctCount = 0; totalCount = 0;
+  document.getElementById('result-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+  loadVerse();
+}
+
+function backToMenu() {
+  document.getElementById('result-screen').style.display = 'none';
+  document.getElementById('set-screen').style.display = 'block';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+buildSetGrid();
+</script>
+</body>
+</html>
